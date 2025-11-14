@@ -2,14 +2,16 @@
  * Script to get all cards for a user or company from the Rain API
  * 
  * Usage:
- *   npx tsx scripts/get-cards.ts
+ *   npm run rain:get-cards
  * 
  * Or with filters:
- *   USER_ID="3c90c3cc-0d44-4b50-8888-8dd25736052a" npx tsx scripts/get-cards.ts
- *   COMPANY_ID="3c90c3cc-0d44-4b50-8888-8dd25736052a" npx tsx scripts/get-cards.ts
+ *   USER_ID="3c90c3cc-0d44-4b50-8888-8dd25736052a" npm run rain:get-cards
+ *   COMPANY_ID="3c90c3cc-0d44-4b50-8888-8dd25736052a" npm run rain:get-cards
+ *   STATUS="active" npm run rain:get-cards
+ *   LIMIT=50 npm run rain:get-cards
  * 
- * Or with both:
- *   USER_ID="..." COMPANY_ID="..." npx tsx scripts/get-cards.ts
+ * Or with multiple filters:
+ *   USER_ID="..." STATUS="active" LIMIT=50 npm run rain:get-cards
  */
 
 import { getCards } from '../lib/rain-api';
@@ -18,13 +20,27 @@ async function main() {
   // Get filter options from environment variables
   const userId = process.env.USER_ID;
   const companyId = process.env.COMPANY_ID;
+  const status = process.env.STATUS as 'notActivated' | 'active' | 'locked' | 'canceled' | undefined;
+  const limit = process.env.LIMIT ? parseInt(process.env.LIMIT, 10) : undefined;
 
-  const options: { userId?: string; companyId?: string } = {};
+  const options: {
+    userId?: string;
+    companyId?: string;
+    status?: 'notActivated' | 'active' | 'locked' | 'canceled';
+    limit?: number;
+  } = {};
+
   if (userId) {
     options.userId = userId;
   }
   if (companyId) {
     options.companyId = companyId;
+  }
+  if (status) {
+    options.status = status;
+  }
+  if (limit) {
+    options.limit = limit;
   }
 
   console.log('Fetching cards...');
@@ -34,8 +50,14 @@ async function main() {
   if (companyId) {
     console.log(`Filtering by companyId: ${companyId}`);
   }
-  if (!userId && !companyId) {
-    console.log('No filters applied - fetching all cards');
+  if (status) {
+    console.log(`Filtering by status: ${status}`);
+  }
+  if (limit) {
+    console.log(`Limit: ${limit}`);
+  }
+  if (!userId && !companyId && !status && !limit) {
+    console.log('No filters applied - fetching all cards (default limit: 20)');
   }
 
   try {

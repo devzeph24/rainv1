@@ -12,6 +12,9 @@ if (!RAIN_API_KEY) {
   throw new Error('RAIN_API_KEY is not defined in environment variables');
 }
 
+// Type assertion for TypeScript - we've already checked it's defined above
+const apiKey: string = RAIN_API_KEY;
+
 /**
  * Base fetch wrapper for Rain API requests
  */
@@ -19,12 +22,13 @@ async function rainApiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${RAIN_API_BASE_URL}${endpoint}`;
+  const baseUrl = RAIN_API_BASE_URL || 'https://api-dev.raincards.xyz/v1';
+  const url = `${baseUrl}${endpoint}`;
   
   const response = await fetch(url, {
     ...options,
     headers: {
-      'Api-Key': RAIN_API_KEY,
+      'Api-Key': apiKey,
       'Content-Type': 'application/json',
       ...options.headers,
     },
@@ -85,6 +89,42 @@ export interface UserApplication {
   };
   phoneCountryCode?: string;
   phoneNumber?: string;
+  applicationExternalVerificationLink?: {
+    url: string;
+    params?: Record<string, string>;
+  };
+  applicationCompletionLink?: {
+    url: string;
+    params?: Record<string, string>;
+  };
+  applicationReason?: string;
+}
+
+/**
+ * User response (from GET /issuing/users)
+ */
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isActive: boolean;
+  isTermsOfServiceAccepted: boolean;
+  applicationStatus: 'approved' | 'pending' | 'needsInformation' | 'needsVerification' | 'manualReview' | 'denied' | 'locked' | 'canceled';
+  companyId?: string;
+  address?: {
+    line1?: string;
+    line2?: string;
+    city?: string;
+    region?: string;
+    postalCode?: string;
+    countryCode?: string;
+    country?: string;
+  };
+  phoneCountryCode?: string;
+  phoneNumber?: string;
+  walletAddress?: string;
+  solanaAddress?: string;
   applicationExternalVerificationLink?: {
     url: string;
     params?: Record<string, string>;
@@ -222,6 +262,36 @@ export async function getUserApplication(userId: string): Promise<UserApplicatio
 }
 
 /**
+ * Get all users
+ * 
+ * @param options - Optional filters for companyId, cursor, and limit
+ * @returns Array of users
+ */
+export async function getUsers(options?: {
+  companyId?: string;
+  cursor?: string;
+  limit?: number;
+}): Promise<User[]> {
+  const params = new URLSearchParams();
+  if (options?.companyId) {
+    params.append('companyId', options.companyId);
+  }
+  if (options?.cursor) {
+    params.append('cursor', options.cursor);
+  }
+  if (options?.limit) {
+    params.append('limit', options.limit.toString());
+  }
+  
+  const queryString = params.toString();
+  const endpoint = `/issuing/users${queryString ? `?${queryString}` : ''}`;
+  
+  return rainApiFetch<User[]>(endpoint, {
+    method: 'GET',
+  });
+}
+
+/**
  * Create a card for a user
  * 
  * @param userId - The user ID to create the card for
@@ -253,12 +323,15 @@ export async function getCard(cardId: string): Promise<Card> {
 /**
  * Get all cards for a user or company
  * 
- * @param options - Optional filters for userId or companyId
+ * @param options - Optional filters for userId, companyId, status, cursor, and limit
  * @returns Array of cards
  */
 export async function getCards(options?: {
   userId?: string;
   companyId?: string;
+  status?: 'notActivated' | 'active' | 'locked' | 'canceled';
+  cursor?: string;
+  limit?: number;
 }): Promise<Card[]> {
   const params = new URLSearchParams();
   if (options?.userId) {
@@ -267,12 +340,48 @@ export async function getCards(options?: {
   if (options?.companyId) {
     params.append('companyId', options.companyId);
   }
+  if (options?.status) {
+    params.append('status', options.status);
+  }
+  if (options?.cursor) {
+    params.append('cursor', options.cursor);
+  }
+  if (options?.limit) {
+    params.append('limit', options.limit.toString());
+  }
   
   const queryString = params.toString();
   const endpoint = `/issuing/cards${queryString ? `?${queryString}` : ''}`;
   
   return rainApiFetch<Card[]>(endpoint, {
     method: 'GET',
+  });
+}
+
+/**
+ * Update card request
+ */
+export interface UpdateCardRequest {
+  status?: CardStatus;
+  limit?: CardLimit;
+  billing?: Address;
+  configuration?: CardConfiguration;
+}
+
+/**
+ * Update a card
+ * 
+ * @param cardId - The card ID to update
+ * @param data - Card update data
+ * @returns The updated card
+ */
+export async function updateCard(
+  cardId: string,
+  data: UpdateCardRequest
+): Promise<Card> {
+  return rainApiFetch<Card>(`/issuing/cards/${cardId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
   });
 }
 
@@ -308,6 +417,31 @@ export async function getCardSecrets(
     headers: {
       'SessionId': sessionId,
     },
+  });
+}
+
+/**
+ * Processor details for a card
+ */
+export interface ProcessorDetails {
+  processorCardId: string;
+  timeBasedSecret?: string;
+}
+
+/**
+ * Get processor details for a card
+ * 
+ * The processor card ID is the identifier assigned by the payment processor
+ * (e.g., Marqeta, Galileo) that handles the actual card processing.
+ * 
+ * @param cardId - The card ID to get processor details for
+ * @returns The processor details including processor card ID
+ */
+export async function getCardProcessorDetails(
+  cardId: string
+): Promise<ProcessorDetails> {
+  return rainApiFetch<ProcessorDetails>(`/issuing/cards/${cardId}/processorDetails`, {
+    method: 'GET',
   });
 }
 
@@ -391,6 +525,11 @@ export async function createUserContract(
  */
 export interface UserBalance {
   creditLimit: number;
+  pendingCharges?: number;
+  postedCharges?: number;
+  balanceDue?: number;
+  spendingPower?: number;
+  // Legacy fields (for backwards compatibility)
   outstandingCharges?: number;
   balancesDue?: number;
   availableCredit?: number;
@@ -463,10 +602,13 @@ export async function getWithdrawalSignature(
 export const rainApi = {
   initiateUserApplication,
   getUserApplication,
+  getUsers,
   createCard,
+  updateCard,
   getCard,
   getCards,
   getCardSecrets,
+  getCardProcessorDetails,
   getUserContracts,
   createUserContract,
   getUserBalances,
