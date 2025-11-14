@@ -9,6 +9,7 @@
     "lint": "eslint",
     "rain:initiate": "node --env-file=.env.local --import tsx scripts/initiate-application.ts",
     "rain:get-cards": "node --env-file=.env.local --import tsx scripts/get-cards.ts",
+    "rain:get-card": "node --env-file=.env.local --import tsx scripts/get-card.ts",
     "rain:check-status": "node --env-file=.env.local --import tsx scripts/check-application-status.ts",
     "rain:create-card": "node --env-file=.env.local --import tsx scripts/create-card.ts",
     "rain:get-secrets": "node --env-file=.env.local --import tsx scripts/get-card-secrets.ts",

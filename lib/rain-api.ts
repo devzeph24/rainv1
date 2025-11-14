@@ -198,7 +198,7 @@ export interface CreateCardRequest {
  */
 export interface Card {
   id: string;
-  companyId: string;
+  companyId?: string; // May not be present for all cards
   userId: string;
   type: CardType;
   status: CardStatus;
@@ -206,7 +206,7 @@ export interface Card {
   last4: string;
   expirationMonth: string;
   expirationYear: string;
-  tokenWallets: string[];
+  tokenWallets?: string[]; // May not be present
 }
 
 /**
@@ -235,6 +235,18 @@ export async function createCard(
   return rainApiFetch<Card>(`/issuing/users/${userId}/cards`, {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Get a single card by card ID
+ * 
+ * @param cardId - The card ID to get
+ * @returns The card details
+ */
+export async function getCard(cardId: string): Promise<Card> {
+  return rainApiFetch<Card>(`/issuing/cards/${cardId}`, {
+    method: 'GET',
   });
 }
 
@@ -452,6 +464,7 @@ export const rainApi = {
   initiateUserApplication,
   getUserApplication,
   createCard,
+  getCard,
   getCards,
   getCardSecrets,
   getUserContracts,
