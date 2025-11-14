@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "rain:initiate": "node --env-file=.env.local --import tsx scripts/initiate-application.ts"
+    "rain:initiate": "node --env-file=.env.local --import tsx scripts/initiate-application.ts",
+    "rain:get-cards": "node --env-file=.env.local --import tsx scripts/get-cards.ts",
+    "rain:check-status": "node --env-file=.env.local --import tsx scripts/check-application-status.ts",
+    "rain:create-card": "node --env-file=.env.local --import tsx scripts/create-card.ts",
+    "rain:get-secrets": "node --env-file=.env.local --import tsx scripts/get-card-secrets.ts",
+    "rain:get-contracts": "node --env-file=.env.local --import tsx scripts/get-user-contracts.ts",
+    "rain:create-contract": "node --env-file=.env.local --import tsx scripts/create-user-contract.ts",
+    "rain:get-balances": "node --env-file=.env.local --import tsx scripts/get-user-balances.ts"
   },
   "dependencies": {
     "react": "19.2.0",

@@ -15,23 +15,29 @@ async function main() {
   const firstName = process.env.FIRST_NAME || 'Jane';
   const lastName = process.env.LAST_NAME || 'Smith';
   const email = process.env.EMAIL || `test-${Date.now()}@example.com`;
-  const walletAddress = process.env.WALLET_ADDRESS || '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0';
+  const walletAddress = process.env.WALLET_ADDRESS; // Optional, only include if provided
 
-  console.log('Initiating user application...');
-  console.log('Data:', {
+  const applicationData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    walletAddress?: string;
+  } = {
     firstName,
     lastName,
     email,
-    walletAddress,
-  });
+  };
+
+  // Only include walletAddress if it was explicitly provided
+  if (walletAddress) {
+    applicationData.walletAddress = walletAddress;
+  }
+
+  console.log('Initiating user application...');
+  console.log('Data:', applicationData);
 
   try {
-    const result = await initiateUserApplication({
-      firstName,
-      lastName,
-      email,
-      walletAddress,
-    });
+    const result = await initiateUserApplication(applicationData);
 
     console.log('\n✅ Application initiated successfully!');
     console.log('\nResponse:');
