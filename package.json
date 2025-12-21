@@ -22,12 +22,14 @@
     "rain:sync-users": "node --env-file=.env.local --import tsx scripts/sync-users.ts",
     "rain:sync-cards": "node --env-file=.env.local --import tsx scripts/sync-cards.ts",
     "test:mcp-card-details": "node --env-file=.env.local --import tsx scripts/test-mcp-card-details.ts",
-    "test:agent-workflow": "node --env-file=.env.local --import tsx scripts/test-agent-workflow.ts"
+    "test:agent-workflow": "node --env-file=.env.local --import tsx scripts/test-agent-workflow.ts",
+    "test:mcp-server": "tsx scripts/test-mcp-server.ts",
+    "generate:api-key": "node --env-file=.env.local --import tsx scripts/generate-api-key.ts"
   },
   "dependencies": {
     "convex": "^1.20.0",
     "mcp-handler": "^1.0.3",
-    "next": "16.0.1",
+    "next": "^16.1.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "zod": "^3.25.76"
@@ -38,7 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.0.1",
+    "eslint-config-next": "^16.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5"

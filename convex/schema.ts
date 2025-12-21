@@ -228,5 +228,22 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_status", ["applicationStatus"])
     .index("by_is_active", ["isActive"]),
+
+  // API Keys for MCP authentication
+  apiKeys: defineTable({
+    userId: v.string(), // Rain user ID
+    keyHash: v.string(), // Hashed API key (for verification)
+    keyPrefix: v.string(), // First 8 chars for display (e.g., "led_1234")
+    name: v.optional(v.string()), // Optional name/description
+    isActive: v.boolean(),
+    lastUsedAt: v.optional(v.number()),
+    expiresAt: v.optional(v.number()), // Optional expiration timestamp
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user_id", ["userId"])
+    .index("by_key_hash", ["keyHash"])
+    .index("by_key_prefix", ["keyPrefix"])
+    .index("by_is_active", ["isActive"]),
 });
 

@@ -17,12 +17,17 @@ The Rain API key and configuration are stored in `.env.local`. This file is alre
 ```env
 RAIN_API_KEY=43250b08c839acc456fe8a036ca210ce0ff5d001
 RAIN_API_BASE_URL=https://api-dev.raincards.xyz/v1
+USE_TEST_CARDS=true
 ```
 
 **Important Security Notes:**
 - ⚠️ **NEVER** expose API keys in client-side code (JavaScript, mobile apps, etc.)
 - ⚠️ API keys should only be used in server-side code (API routes, server components, scripts)
 - The `.env.local` file is automatically ignored by git
+
+**Test Mode:**
+- Set `USE_TEST_CARDS=true` to use mock test cards (avoids API costs)
+- See [TEST_MODE.md](./TEST_MODE.md) for details on test card mode
 
 ### 3. Switch to Production
 
