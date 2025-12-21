@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `app/`: Next.js App Router (API route at `app/api/mcp/[...path]/route.ts`).
+- `app/`: Next.js App Router (MCP routes at `app/api/mcp/[[...path]]/route.ts` and `app/mcp/route.ts`).
 - `convex/`: Convex schema and functions; `_generated/` is auto-created.
 - `lib/`: TypeScript utilities (e.g., `rain-api.ts`, `card-decrypt.ts`).
 - `scripts/`: Node/TS CLI scripts to exercise APIs and workflows.
@@ -34,6 +34,5 @@
 
 ## Security & Configuration
 - Never commit secrets. Use `.env.local` (ignored by Git). Keys: `NEXT_PUBLIC_CONVEX_URL`, `MCP_API_KEY`, `REDIS_URL`, Rain API creds; see `.env.example`.
-- The MCP server authenticates via `Authorization: Bearer <MCP_API_KEY>`; discovery endpoints may be unauthenticated in dev.
+- The MCP server authenticates via `Authorization: Bearer <MCP_API_KEY>`. Clients must send `Accept: application/json, text/event-stream`. Discovery endpoints may be unauthenticated in dev.
 - Server-Sent Events on Vercel require `REDIS_URL`.
-

@@ -42,7 +42,7 @@ This will:
 
 3. **Connect**:
    - Select: **Streamable HTTP**
-   - URL: `http://localhost:3000/api/mcp`
+   - URL: `http://localhost:3000/mcp` (or `/api/mcp`)
    - Click **Connect**
 
 4. **Test tools**:
@@ -56,15 +56,17 @@ This will:
 
 **List all tools**:
 ```bash
-curl -X POST http://localhost:3000/api/mcp \
+curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq
 ```
 
 **Test create_virtual_card** (with test mode):
 ```bash
-curl -X POST http://localhost:3000/api/mcp \
+curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -101,7 +103,7 @@ curl -X POST http://localhost:3000/api/mcp \
 
 ## 🐛 Troubleshooting
 
-**404 Error**: Make sure route is at `/api/mcp/route.ts`
+**404 Error**: Ensure routes exist at `app/api/mcp/[[...path]]/route.ts` and/or `app/mcp/route.ts`. Prefer calling `/mcp`.
 
 **Connection Refused**: Start dev server with `npm run dev`
 
@@ -127,4 +129,3 @@ With `USE_TEST_CARDS=true`:
 2. Try MCP Inspector for visual testing
 3. Test specific workflows (see TESTING.md)
 4. Deploy to Vercel when ready
-

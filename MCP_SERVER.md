@@ -5,8 +5,12 @@ This project includes an MCP (Model Context Protocol) server that provides acces
 ## Setup
 
 The MCP server is already configured and ready to use. It's located at:
-- **Route**: `/app/api/mcp/route.ts`
-- **Endpoint**: `http://localhost:3000/api/mcp` (local) or `https://your-app.vercel.app/api/mcp` (production)
+- **Routes**: `app/api/mcp/[[...path]]/route.ts` and `app/mcp/route.ts`
+- **Endpoints**:
+  - Preferred: `http://localhost:3000/mcp` (local) or `https://your-app.vercel.app/mcp` (production)
+  - Also available: `http://localhost:3000/api/mcp` or `https://your-app.vercel.app/api/mcp`
+
+Important: Clients must send header `Accept: application/json, text/event-stream` in addition to `Content-Type: application/json`.
 
 ## Available Tools
 
@@ -34,18 +38,13 @@ The MCP server provides the following tools to interact with your Convex databas
    npm run dev
    ```
 
-2. **Run the MCP inspector:**
+2. Use curl to sanity check tools list:
    ```bash
-   npx @modelcontextprotocol/inspector@latest http://localhost:3000
+   curl -X POST http://localhost:3000/mcp \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json, text/event-stream' \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
    ```
-
-3. **Open the inspector interface:**
-   - Browse to `http://127.0.0.1:6274`
-
-4. **Connect to your MCP server:**
-   - Select **Streamable HTTP** in the dropdown
-   - Enter URL: `http://localhost:3000/api/mcp`
-   - Click **Connect**
 
 5. **Test the tools:**
    - Click **List Tools** to see all available tools
@@ -54,14 +53,19 @@ The MCP server provides the following tools to interact with your Convex databas
 
 ## Configuring Cursor
 
-To use this MCP server in Cursor, add it to your MCP configuration:
+To use this MCP server in Cursor, add it to your MCP configuration (Streamable HTTP):
 
 **`.cursor/mcp.json`** (create if it doesn't exist):
 ```json
 {
   "mcpServers": {
-    "rain-cards": {
-      "url": "http://localhost:3000/api/mcp"
+    "ledgeros-v1": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_API_KEY",
+        "Accept": "application/json, text/event-stream"
+      }
     }
   }
 }
@@ -71,8 +75,13 @@ For production (after deploying to Vercel):
 ```json
 {
   "mcpServers": {
-    "rain-cards": {
-      "url": "https://your-app.vercel.app/api/mcp"
+    "ledgeros-v1": {
+      "type": "http",
+      "url": "https://your-app.vercel.app/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_API_KEY",
+        "Accept": "application/json, text/event-stream"
+      }
     }
   }
 }
@@ -103,8 +112,9 @@ The MCP server acts as a bridge between MCP clients (like Cursor) and your Conve
 
 ## Deployment
 
-When you deploy to Vercel, the MCP server will automatically be available at:
-`https://your-app.vercel.app/api/mcp`
+When you deploy to Vercel, the MCP server will be available at:
+`https://your-app.vercel.app/mcp` (preferred) and `https://your-app.vercel.app/api/mcp`.
 
-No additional configuration needed - Vercel will handle the serverless function deployment automatically.
-
+Notes:
+- The server requires `Accept: application/json, text/event-stream` in requests.
+- We default to Streamable HTTP transport. To enable SSE on Vercel, configure `REDIS_URL` and toggle the handler to use SSE per `mcp-handler` docs.

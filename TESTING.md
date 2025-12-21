@@ -66,7 +66,7 @@ npx @modelcontextprotocol/inspector@latest
 
 1. Open the inspector (usually at `http://127.0.0.1:6274`)
 2. Select **Streamable HTTP** from the transport dropdown
-3. Enter URL: `http://localhost:3000/api/mcp`
+3. Enter URL: `http://localhost:3000/mcp` (or `/api/mcp`)
 4. Click **Connect**
 
 ### Test Tools
@@ -85,8 +85,9 @@ Test the MCP server directly with curl:
 ### List Available Tools
 
 ```bash
-curl -X POST http://localhost:3000/api/mcp \
+curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -98,8 +99,9 @@ curl -X POST http://localhost:3000/api/mcp \
 
 ```bash
 # Create a virtual card
-curl -X POST http://localhost:3000/api/mcp \
+curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -118,8 +120,9 @@ curl -X POST http://localhost:3000/api/mcp \
 ### Get Card Payment Details
 
 ```bash
-curl -X POST http://localhost:3000/api/mcp \
+curl -X POST http://localhost:3000/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -145,8 +148,13 @@ Add to your MCP configuration (`.cursor/mcp.json` or Claude Desktop config):
 ```json
 {
   "mcpServers": {
-    "rain-cards": {
-      "url": "http://localhost:3000/api/mcp"
+    "ledgeros-v1": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_MCP_API_KEY",
+        "Accept": "application/json, text/event-stream"
+      }
     }
   }
 }
@@ -264,4 +272,3 @@ After testing:
 3. ✅ Test with real data (disable test mode)
 4. ✅ Deploy to Vercel
 5. ✅ Test production endpoint
-

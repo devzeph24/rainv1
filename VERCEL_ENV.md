@@ -25,11 +25,11 @@ This document lists all environment variables that need to be configured in Verc
   - Only needed if using Convex CLI locally
   - Not required in Vercel production
 
-### 3. MCP Server Authentication (Optional)
+### 3. MCP Server Authentication
 - **`MCP_API_KEY`** (Secret)
-  - Optional: Leave empty for development mode (no auth required)
-  - Set to require API key authentication for MCP requests
+  - Required in production to authenticate MCP requests
   - Clients use: `Authorization: Bearer <key>` or `X-API-Key: <key>`
+  - Clients should also send `Accept: application/json, text/event-stream`
 
 ### 4. Test Mode (Optional)
 - **`USE_TEST_CARDS`** (Optional)
@@ -48,7 +48,7 @@ This document lists all environment variables that need to be configured in Verc
    RAIN_API_KEY=your_production_rain_api_key
    RAIN_API_BASE_URL=https://api.raincards.xyz/v1
    NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
-   MCP_API_KEY=your_mcp_api_key (optional)
+   MCP_API_KEY=your_mcp_api_key
    USE_TEST_CARDS=false (or omit)
    ```
 
@@ -82,9 +82,8 @@ After deployment, verify your environment variables are set:
 vercel logs
 
 # Or test the MCP endpoint
-curl https://your-app.vercel.app/api/mcp \
+curl https://your-app.vercel.app/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
-

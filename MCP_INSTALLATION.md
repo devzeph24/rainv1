@@ -12,7 +12,14 @@ LedgerOS v1 is an MCP server that provides tools for managing Rain Cards, users,
 
 Connect directly to the MCP server endpoint:
 
-**URL:** `https://your-app.vercel.app/api/mcp` (production) or `http://localhost:3000/api/mcp` (development)
+Preferred endpoint:
+
+- `https://your-app.vercel.app/mcp` (production)
+- `http://localhost:3000/mcp` (development)
+
+Also available: `/api/mcp` at the same hosts.
+
+Important: Clients must send header `Accept: application/json, text/event-stream`.
 
 **Transport:** HTTP POST with Server-Sent Events (SSE) support
 
@@ -20,16 +27,17 @@ Connect directly to the MCP server endpoint:
 
 #### Claude Desktop / Cursor
 
-Add to your MCP configuration:
+Add to your MCP configuration (Streamable HTTP):
 
 ```json
 {
   "mcpServers": {
     "ledgeros-v1": {
-      "url": "https://your-app.vercel.app/api/mcp",
-      "transport": "sse",
+      "type": "http",
+      "url": "https://your-app.vercel.app/mcp",
       "headers": {
-        "Authorization": "Bearer YOUR_MCP_API_KEY"
+        "Authorization": "Bearer YOUR_MCP_API_KEY",
+        "Accept": "application/json, text/event-stream"
       }
     }
   }
@@ -49,7 +57,7 @@ const client = new MCPClient({
 await client.connect({
   transport: {
     type: 'sse',
-    url: 'https://your-app.vercel.app/api/mcp',
+    url: 'https://your-app.vercel.app/mcp',
     headers: {
       'Authorization': 'Bearer YOUR_MCP_API_KEY',
       'Accept': 'application/json, text/event-stream',
@@ -80,7 +88,7 @@ For production use, generate user-specific API keys:
 
 ```bash
 # Generate a key for a user
-curl -X POST https://your-app.vercel.app/api/mcp \
+curl -X POST https://your-app.vercel.app/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_MCP_API_KEY" \
@@ -133,7 +141,7 @@ The server provides 19 tools:
 ### 1. Initialize Connection
 
 ```bash
-curl -X POST https://your-app.vercel.app/api/mcp \
+curl -X POST https://your-app.vercel.app/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -154,7 +162,7 @@ curl -X POST https://your-app.vercel.app/api/mcp \
 ### 2. List Available Tools
 
 ```bash
-curl -X POST https://your-app.vercel.app/api/mcp \
+curl -X POST https://your-app.vercel.app/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -167,7 +175,7 @@ curl -X POST https://your-app.vercel.app/api/mcp \
 ### 3. Create a Virtual Card
 
 ```bash
-curl -X POST https://your-app.vercel.app/api/mcp \
+curl -X POST https://your-app.vercel.app/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_MCP_API_KEY" \
@@ -254,4 +262,3 @@ For issues or questions:
 - Check the [Rain API Documentation](https://docs.raincards.xyz)
 - Review server logs in Vercel dashboard
 - Contact: platform@raincards.xyz
-
